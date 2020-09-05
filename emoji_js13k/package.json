@@ -1,0 +1,66 @@
+{
+  "name": "emoji_js13k",
+  "version": "1.0.0",
+  "description": "js13kgames game jam server",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/**/*.jsx --fix",
+    "bundle": "browserify -t babelify -t browserify-css --debug src/index.jsx -o public/bundle.js",
+    "deploy": "browserify -t babelify -t browserify-css -t uglifyify src/index.jsx -o public/bundle.js ",
+    "start": "npm run deploy && node index.js",
+    "start:dev": "nodemon",
+    "test": "mocha test"
+  },
+  "eslintConfig": {
+    "extends": "eslint-config-synacor"
+  },
+  "eslintIgnore": [
+    "build/*"
+  ],
+  "keywords": [
+    "js13kgames",
+    "server",
+    "preact",
+    "browserify"
+  ],
+  "engines": {
+    "node": "8.*"
+  },
+  "nodemonConfig": {
+    "ext": "js,mjs,ts,json,css,scss,sass,html,pug"
+  },
+  "devDependencies": {
+    "archiver": "^4.0.2",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babelify": "^8.0.0",
+    "body-parser": "^1.19.0",
+    "browserify": "^16.5.2",
+    "browserify-css": "^0.15.0",
+    "chalk": "^4.1.0",
+    "eslint": "^7.8.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.20.6",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "mysql2": "^2.1.0",
+    "pg": "^8.3.0",
+    "pg-hstore": "^2.3.3",
+    "preact": "^8.5.3",
+    "preact-render-to-string": "^5.1.2",
+    "sequelize": "^6.3.3",
+    "socket.io": "^2.3.0",
+    "sqlite3": "^5.0.0",
+    "uglifyify": "^4.0.5"
+  },
+  "dependencies": {
+    "nodemon": "^2.0.4",
+    "preact": "^8.5.3",
+    "preact-compat": "^3.19.0"
+  }
+}

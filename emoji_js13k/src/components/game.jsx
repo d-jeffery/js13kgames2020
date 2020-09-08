@@ -8,9 +8,10 @@ export default class Game extends Component {
   constructor() {
     super();
     this.state = {
+      cards: {player1: [], player2: []},
+      score: {player1: 0, player2: 0},
       flippedCards: {first: {}, second: {}},
       isMatched: {},
-      score: 0,
       turn: PLAYER_1,
       started: false,
     };
@@ -34,33 +35,50 @@ export default class Game extends Component {
       console.log("Round starting");
       this.setState({started: true});
     });
+
+    this.socket.on("end", () => {
+      console.log("End");
+      this.setState({started: false});
+    });
+
+    this.socket.on("error", () => {
+      console.error("An error with the server occurred.")
+    });
+
+    this.state.cards.player1 = this.generateCardGrid();
+    this.state.cards.player2 = this.generateCardGrid();
   }
 
   generateCardGrid() {
     const emojis = ['🚀', '😺', '🐶', '🏈', '📦', '🙊'];
 
-    return [...emojis, ...emojis]
+    return [...emojis]
         .sort(() => Math.random() - Math.random())
         .map((emoji, idx) => ({key: idx, emoji}));
   }
 
   render(props, state) {
     if (!this.state.started) {
-      return <div className="game">
+      return (<div className="game">
         <div class="head">
           <h2>Waiting for opponent...</h2>
         </div>
-      </div>;
+      </div>);
     }
     return (<div class="game">
-      <div class="head">
-        <h2>Game</h2>
-      </div>
+      <h2>Player 1</h2>
       <div class="grid">
-        {this.generateCardGrid().map((card) => (
-          <Card hiddenValue={card.emoji}/>
+        {this.state.cards.player1.map((card) => (
+            <Card hiddenValue={card.emoji}/>
         ))}
       </div>
+      <hr class="break"/>
+      <div class="grid">
+        {this.state.cards.player2.map((card) => (
+            <Card hiddenValue={card.emoji}/>
+        ))}
+      </div>
+      <h2>Player 2</h2>
     </div>);
   }
 }
@@ -74,11 +92,6 @@ export default class Game extends Component {
 //    */
 //   function bind() {
 //
-//     socket.on("start", () => {
-//       enableButtons();
-//       console.log("Round starting");
-//     });
-//
 //     socket.on("win", () => {
 //       console.log("You win!");
 //     });
@@ -91,32 +104,6 @@ export default class Game extends Component {
 //       console.log("Draw!");
 //     });
 //
-//     socket.on("end", () => {
-//       console.log("Waiting for opponent...");
-//     });
-//
-//     socket.on("connect", () => {
-//       console.log("Connected")
-//     });
-//
-//     socket.on("disconnect", () => {
-//       console.log("Disconnected")
-//     });
-//
-//     socket.on("error", () => {
-//       console.log("Error")
-//     });
-//
 //   }
-//
-//   /**
-//    * Client module init
-//    */
-//   function init() {
-//     socket = io({ upgrade: false, transports: ["websocket"] });
-//     bind();
-//   }
-//
-//   window.addEventListener("load", init, false);
-//   })();
+
 

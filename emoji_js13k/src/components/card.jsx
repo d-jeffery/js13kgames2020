@@ -9,13 +9,17 @@ export default class Card extends Component {
     this.state = {
       hiddenValue: null,
       flipStatus: DEFAULT,
-      onclick: null,
     };
   }
 
+  flip() {
+    console.log("flip");
+    this.setState({flipStatus: FLIPPED})
+  };
+
   render(props, state) {
-    return (<div class="card" data-flipStatus={props.flipStatus}>
-      <button class="front" onClick={props.onClick}>
+    return (<div class="card" data-flipStatus={this.state.flipStatus}>
+      <button class="front" onClick={this.flip.bind(this)}>
             ?
       </button>
       <div class="back">{props.hiddenValue}</div>

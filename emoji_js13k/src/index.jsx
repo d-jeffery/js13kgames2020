@@ -1,11 +1,10 @@
 'use strict';
 
 import {h, render} from 'preact';
-import Splash from './components/splash.jsx';
+import Game from "./components/game.jsx";
 
-console.log('rendering');
-render((
-  <div>
-    <Splash />
-  </div>
-), document.body);
+    console.log('rendering');
+    render((<div>
+            <Game/>
+        </div>
+    ), document.body);

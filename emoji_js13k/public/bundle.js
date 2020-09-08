@@ -1,81 +1,4 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-'use strict';
-// For more information about browser field, check out the browser field at https://github.com/substack/browserify-handbook#browser-field.
-
-var styleElementsInsertedAtTop = [];
-
-var insertStyleElement = function(styleElement, options) {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];
-
-    options = options || {};
-    options.insertAt = options.insertAt || 'bottom';
-
-    if (options.insertAt === 'top') {
-        if (!lastStyleElementInsertedAtTop) {
-            head.insertBefore(styleElement, head.firstChild);
-        } else if (lastStyleElementInsertedAtTop.nextSibling) {
-            head.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);
-        } else {
-            head.appendChild(styleElement);
-        }
-        styleElementsInsertedAtTop.push(styleElement);
-    } else if (options.insertAt === 'bottom') {
-        head.appendChild(styleElement);
-    } else {
-        throw new Error('Invalid value for parameter \'insertAt\'. Must be \'top\' or \'bottom\'.');
-    }
-};
-
-module.exports = {
-    // Create a <link> tag with optional data attributes
-    createLink: function(href, attributes) {
-        var head = document.head || document.getElementsByTagName('head')[0];
-        var link = document.createElement('link');
-
-        link.href = href;
-        link.rel = 'stylesheet';
-
-        for (var key in attributes) {
-            if ( ! attributes.hasOwnProperty(key)) {
-                continue;
-            }
-            var value = attributes[key];
-            link.setAttribute('data-' + key, value);
-        }
-
-        head.appendChild(link);
-    },
-    // Create a <style> tag with optional data attributes
-    createStyle: function(cssText, attributes, extraOptions) {
-        extraOptions = extraOptions || {};
-
-        var style = document.createElement('style');
-        style.type = 'text/css';
-
-        for (var key in attributes) {
-            if ( ! attributes.hasOwnProperty(key)) {
-                continue;
-            }
-            var value = attributes[key];
-            style.setAttribute('data-' + key, value);
-        }
-
-        if (style.sheet) { // for jsdom and IE9+
-            style.innerHTML = cssText;
-            style.sheet.cssText = cssText;
-            insertStyleElement(style, { insertAt: extraOptions.insertAt });
-        } else if (style.styleSheet) { // for IE8 and below
-            insertStyleElement(style, { insertAt: extraOptions.insertAt });
-            style.styleSheet.cssText = cssText;
-        } else { // for Chrome, Firefox, and Safari
-            style.appendChild(document.createTextNode(cssText));
-            insertStyleElement(style, { insertAt: extraOptions.insertAt });
-        }
-    }
-};
-
-},{}],2:[function(require,module,exports){
 !function() {
     'use strict';
     function h(nodeName, attributes) {
@@ -490,19 +413,13 @@ module.exports = {
     if ('undefined' != typeof module) module.exports = preact; else self.preact = preact;
 }();
 
-},{}],3:[function(require,module,exports){
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_preact=require("preact");function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}var Game=function(e){function t(){return _classCallCheck(this,t),_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).call(this))}return _inherits(t,_preact.Component),_createClass(t,[{key:"render",value:function(e,t){return(0,_preact.h)("div",null,e.emoji)}}]),t}();exports.default=Game;
+},{}],2:[function(require,module,exports){
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_preact=require("preact");function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}var Card=function(e){function t(){_classCallCheck(this,t);var e=_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return e.state={hiddenValue:null,flipStatus:DEFAULT,onclick:null},e}return _inherits(t,_preact.Component),_createClass(t,[{key:"render",value:function(e,t){return(0,_preact.h)("div",{class:"card","data-flipStatus":e.flipStatus},(0,_preact.h)("button",{class:"front",onClick:e.onClick},"?"),(0,_preact.h)("div",{class:"back"},e.hiddenValue))}}]),t}();exports.default=Card;
 
-},{"preact":2}],4:[function(require,module,exports){
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_preact=require("preact"),_card=require("./card.jsx"),_card2=_interopRequireDefault(_card),_style=require("./style.css"),_style2=_interopRequireDefault(_style);function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}var Game=function(e){function t(){_classCallCheck(this,t);var e=_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return e.state={flippedCards:{first:{},second:{}},isMatched:{},score:0},e}return _inherits(t,_preact.Component),_createClass(t,[{key:"render",value:function(e,t){return(0,_preact.h)("div",{className:_style2.default.home},(0,_preact.h)("div",{className:_style2.default.head},(0,_preact.h)("div",{className:_style2.default.grid},(0,_preact.h)("h2",null,"Game"),e.cards.map(function(e){return(0,_preact.h)(_card2.default,{hiddenValue:e.emoji})}))))}}]),t}();exports.default=Game;
+},{"preact":1}],3:[function(require,module,exports){
+"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_preact=require("preact"),_card=require("./card.jsx"),_card2=_interopRequireDefault(_card);function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}var Game=function(e){function t(){_classCallCheck(this,t);var e=_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return e.state={flippedCards:{first:{},second:{}},isMatched:{},score:0,turn:PLAYER_1,started:!1},e.socket=io({upgrade:!1,transports:["websocket"]}),console.log("Binding"),e.bind(),e}return _inherits(t,_preact.Component),_createClass(t,[{key:"bind",value:function(){var e=this;this.socket.on("connect",function(){console.log("Connected")}),this.socket.on("disconnect",function(){console.log("Disconnected")}),this.socket.on("start",function(){console.log("Round starting"),e.setState({started:!0})})}},{key:"generateCardGrid",value:function(){var e=["🚀","😺","🐶","🏈","📦","🙊"];return[].concat(e,e).sort(function(){return Math.random()-Math.random()}).map(function(e,t){return{key:t,emoji:e}})}},{key:"render",value:function(e,t){return this.state.started?(0,_preact.h)("div",{class:"game"},(0,_preact.h)("div",{class:"head"},(0,_preact.h)("h2",null,"Game")),(0,_preact.h)("div",{class:"grid"},this.generateCardGrid().map(function(e){return(0,_preact.h)(_card2.default,{hiddenValue:e.emoji})}))):(0,_preact.h)("div",{className:"game"},(0,_preact.h)("div",{class:"head"},(0,_preact.h)("h2",null,"Waiting for opponent...")))}}]),t}();exports.default=Game;
 
-},{"./card.jsx":3,"./style.css":6,"preact":2}],5:[function(require,module,exports){
-"use strict";Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_preact=require("preact"),_style=require("./style.css"),_style2=_interopRequireDefault(_style),_game=require("./game.jsx"),_game2=_interopRequireDefault(_game);function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _possibleConstructorReturn(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function _inherits(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function generateCardGrid(){var e=["🚀","😺","🐶","🏈","📦","🙊"];return[].concat(e,e).sort(function(){return Math.random()-Math.random()}).map(function(e,t){return{key:t,emoji:e}})}var Splash=function(e){function t(){_classCallCheck(this,t);var e=_possibleConstructorReturn(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return e.state={started:!1},e}return _inherits(t,_preact.Component),_createClass(t,[{key:"startGame",value:function(){console.log("Starting game"),this.setState({started:!0})}},{key:"render",value:function(e,t){return t.started?(0,_preact.h)(_game2.default,{cards:generateCardGrid()}):(0,_preact.h)("div",{className:_style2.default.home},(0,_preact.h)("div",{className:_style2.default.head},(0,_preact.h)("h2",null,"Match Game")),(0,_preact.h)("button",{className:_style2.default.button,onClick:this.startGame.bind(this)},"New Game"))}}]),t}();exports.default=Splash;
+},{"./card.jsx":2,"preact":1}],4:[function(require,module,exports){
+"use strict";var _preact=require("preact"),_game=require("./components/game.jsx"),_game2=_interopRequireDefault(_game);function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}console.log("rendering"),(0,_preact.render)((0,_preact.h)("div",null,(0,_preact.h)(_game2.default,null)),document.body);
 
-},{"./game.jsx":4,"./style.css":6,"preact":2}],6:[function(require,module,exports){
-var css=".home {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  text-align: center;\n  line-height: 1.5;\n}\n.head {\n  max-width: 300px;\n  padding-bottom: 30px;\n  font-size: 1.2rem;\n}\n.button {\n  width: 200px;\n  height: 50px;\n  background-color: #e7a61a;\n  -webkit-tap-highlight-color: rgba(0,0,0,0);\n  color: #000;\n  border: 0;\n  border-radius: 10px;\n  -webkit-box-shadow: 0px 3px 6px 0px #000;\n  -moz-box-shadow: 0px 3px 6px 0px #000;\n  box-shadow: 0px 3px 6px 0px #000;\n  outline: none;\n  font-family: 'Press Start 2P', cursive;\n  font-size: 1.2rem;\n  cursor: pointer;\n}\n";require("browserify-css").createStyle(css,{href:"src/components/style.css"},{insertAt:"bottom"}),module.exports=css;
-
-},{"browserify-css":1}],7:[function(require,module,exports){
-"use strict";var _preact=require("preact"),_splash=require("./components/splash.jsx"),_splash2=_interopRequireDefault(_splash);function _interopRequireDefault(e){return e&&e.__esModule?e:{default:e}}console.log("rendering"),(0,_preact.render)((0,_preact.h)("div",null,(0,_preact.h)(_splash2.default,null)),document.body);
-
-},{"./components/splash.jsx":5,"preact":2}]},{},[7]);
+},{"./components/game.jsx":3,"preact":1}]},{},[4]);

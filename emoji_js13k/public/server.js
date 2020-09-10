@@ -30,6 +30,16 @@ function removeUser(user) {
 }
 
 /**
+ *
+ * @returns {{emoji: *, key: *}[]}
+ */
+function generateCardGrid() {
+	return [...EMOJIS]
+		.sort(() => Math.random() - Math.random())
+		.map((emoji, idx) => ({key: idx, emoji}));
+}
+
+/**
  * Game class
  */
 class Game {
@@ -98,6 +108,7 @@ class User {
 		this.game = null;
 		this.opponent = null;
 		this.guess = GUESS_NO;
+		this.hand = [];
 	}
 
 	/**
@@ -126,6 +137,7 @@ class User {
 		this.opponent = opponent;
 		this.guess = GUESS_NO;
 		this.socket.emit("start");
+		this.hand = generateCardGrid();
 	}
 
 	/**
@@ -159,7 +171,9 @@ class User {
 		this.socket.emit("draw", this.opponent.guess);
 	}
 
+
 }
+
 
 /**
  * Socket.IO on connect event
@@ -179,6 +193,10 @@ module.exports = {
 				user.opponent.end();
 				findOpponent(user.opponent);
 			}
+		});
+
+		socket.on("flip", (guess, callback) => {
+			callback(user.hand[guess.guess]);
 		});
 
 		socket.on("guess", (guess) => {

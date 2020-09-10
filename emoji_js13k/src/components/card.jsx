@@ -12,17 +12,19 @@ export default class Card extends Component {
     };
   }
 
-  flip() {
-    console.log("flip");
-    this.setState({flipStatus: FLIPPED})
+  flip(socket, val) {
+    socket.emit("flip", {"guess": val}, (cardFace) => {
+      console.log(cardFace);
+      this.setState({flipStatus: FLIPPED, hiddenValue: cardFace.emoji});
+    });
   };
 
   render(props, state) {
-    return (<div class="card" data-flipStatus={this.state.flipStatus}>
-      <button class="front" onClick={this.flip.bind(this)}>
+    return (<div class="card" data-flipStatus={this.state.flipStatus} data-val={props.val}>
+      <button class="front" onClick={this.flip.bind(this, props.socket, props.val)}>
             ?
       </button>
-      <div class="back">{props.hiddenValue}</div>
+      <div className="back">{state.hiddenValue}</div>
     </div>);
   }
 }

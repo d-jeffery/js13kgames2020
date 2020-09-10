@@ -31,9 +31,9 @@ export default class Game extends Component {
       console.log("Disconnected")
     });
 
-    this.socket.on("start", () => {
+    this.socket.on("start", (numOfCards) => {
       console.log("Round starting");
-      this.setState({started: true});
+      this.setState({started: true, });
     });
 
     this.socket.on("end", () => {
@@ -45,16 +45,6 @@ export default class Game extends Component {
       console.error("An error with the server occurred.")
     });
 
-    this.state.cards.player1 = this.generateCardGrid();
-    this.state.cards.player2 = this.generateCardGrid();
-  }
-
-  generateCardGrid() {
-    const emojis = ['🚀', '😺', '🐶', '🏈', '📦', '🙊'];
-
-    return [...emojis]
-        .sort(() => Math.random() - Math.random())
-        .map((emoji, idx) => ({key: idx, emoji}));
   }
 
   render(props, state) {
@@ -65,18 +55,18 @@ export default class Game extends Component {
         </div>
       </div>);
     }
+    const items = []
+    for (let i = 0; i < EMOJIS.length; i++) {
+      items.push(<Card val={i} socket={this.socket}/>)
+    }
     return (<div class="game">
       <h2>Player 1</h2>
       <div class="grid">
-        {this.state.cards.player1.map((card) => (
-            <Card hiddenValue={card.emoji}/>
-        ))}
+        {items.map((index) => index)}
       </div>
       <hr class="break"/>
       <div class="grid">
-        {this.state.cards.player2.map((card) => (
-            <Card hiddenValue={card.emoji}/>
-        ))}
+        {items.map((index) => index)}
       </div>
       <h2>Player 2</h2>
     </div>);

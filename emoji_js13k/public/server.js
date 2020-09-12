@@ -88,7 +88,7 @@ class Game {
 	 */
 	score() {
 		console.log(this.user1.hand[this.user1.guessed], this.user2.hand[this.user2.guessed])
-		if (this.user1.hand[this.user1.guessed] === this.user2.hand[this.user2.guessed]) {
+		if (this.user1.hand[this.user1.guessed].emoji === this.user2.hand[this.user2.guessed].emoji) {
 			if (this.turn === PLAYER_1) {
 				this.user1.matched();
 				this.turn = PLAYER_1;
@@ -179,7 +179,6 @@ class User {
 	matched() {
 		console.log("matched")
 		this.socket.emit("matched", ({guessed: this.guessed, match: this.opponent.guessed}));
-		this.guessed = null;
 	}
 
 	/**
@@ -248,6 +247,7 @@ module.exports = {
 			}
 
 			if (user.guessed !== null && user.opponent.guessed !== null ) {
+				user.game.score();
 				user.game.endRound();
 			}
 		});

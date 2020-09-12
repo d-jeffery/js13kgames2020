@@ -15,8 +15,8 @@ export default class Game extends Component {
       cards: {player1: [], player2: []},
       score: {player1: 0, player2: 0},
       flippedCards: {first: {}, second: {}},
-      isMatched: {},
       started: false,
+      waiting: true
     };
 
     this.socket = useContext(Socket);
@@ -36,10 +36,7 @@ export default class Game extends Component {
 
     this.socket.on("start", (numOfCards) => {
       console.log("Start game");
-      this.setState({started: true, cards: {
-        player1: this.createHand(PLAYER_1),
-        player2: this.createHand(PLAYER_2)
-      }});
+      this.setState({started: true});
     });
 
     this.socket.on("newRound", () => {
@@ -48,10 +45,12 @@ export default class Game extends Component {
 
     this.socket.on("turn", () => {
       console.log("Turning");
+      this.setState({waiting: false})
     });
 
     this.socket.on("wait", () => {
       console.log("Waiting");
+      this.setState({waiting: true})
     });
 
     this.socket.on("end", () => {
@@ -80,7 +79,11 @@ export default class Game extends Component {
     const hand = [];
     for (let i = 0; i < EMOJIS.length; i++) {
       if (player === PLAYER_1) {
-        hand.push(this.createCard({player, val: i}));
+        if (this.state.waiting) {
+          hand.push(this.createCard({player, val: i, disabled: true}));
+        } else {
+          hand.push(this.createCard({player, val: i}));
+        }
       } else {
         hand.push(this.createCard({player, val: i, disabled: true}))
       }
@@ -97,40 +100,19 @@ export default class Game extends Component {
       </div>);
     }
     return (<div class="game">
-      <h2>Player 1</h2>
+      <h2>Player: {this.state.waiting ? "Opponent's turn" : "Your Turn"} </h2>
       <div class="grid">
-          {this.state.cards.player1.map((index) => index)}
+        {
+          this.createHand(PLAYER_1).map((index) => index)
+        }
       </div>
       <hr class="break"/>
       <div class="grid">
-        {this.state.cards.player2.map((index) => index)}
+        {
+          this.createHand(PLAYER_2).map((index) => index)
+        }
       </div>
-      <h2>Player 2</h2>
+      <h2>Opponent</h2>
     </div>);
   }
 }
-//
-// (function () {
-//
-//   let socket; //Socket.IO client
-//
-//   /**
-//    * Binde Socket.IO and button events
-//    */
-//   function bind() {
-//
-//     socket.on("win", () => {
-//       console.log("You win!");
-//     });
-//
-//     socket.on("lose", () => {
-//       console.log("You lose!");
-//     });
-//
-//     socket.on("draw", () => {
-//       console.log("Draw!");
-//     });
-//
-//   }
-
-

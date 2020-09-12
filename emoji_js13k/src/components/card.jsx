@@ -3,7 +3,6 @@
 // Don't forget to include h renderer!
 import {h, Component, createRef} from 'preact';
 
-
 export default class Card extends Component {
   constructor(props) {
     super();

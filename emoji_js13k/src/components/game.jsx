@@ -1,8 +1,12 @@
 'use strict';
 
 // Don't forget to include h renderer!
-import {h, Component} from 'preact';
+import {h, Component, createContext} from 'preact';
+import {useContext} from 'preact/hooks';
+
 import Card from './card.jsx';
+
+const Socket = createContext(io({ upgrade: false, transports: ["websocket"] }));
 
 export default class Game extends Component {
   constructor() {
@@ -12,11 +16,10 @@ export default class Game extends Component {
       score: {player1: 0, player2: 0},
       flippedCards: {first: {}, second: {}},
       isMatched: {},
-      turn: PLAYER_1,
       started: false,
     };
 
-    this.socket = io({ upgrade: false, transports: ["websocket"] })
+    this.socket = useContext(Socket);
 
     console.log("Binding");
     this.bind();
@@ -32,8 +35,23 @@ export default class Game extends Component {
     });
 
     this.socket.on("start", (numOfCards) => {
+      console.log("Start game");
+      this.setState({started: true, cards: {
+        player1: this.createHand(PLAYER_1),
+        player2: this.createHand(PLAYER_2)
+      }});
+    });
+
+    this.socket.on("newRound", () => {
       console.log("Round starting");
-      this.setState({started: true, });
+    });
+
+    this.socket.on("turn", () => {
+      console.log("Turning");
+    });
+
+    this.socket.on("wait", () => {
+      console.log("Waiting");
     });
 
     this.socket.on("end", () => {
@@ -45,6 +63,29 @@ export default class Game extends Component {
       console.error("An error with the server occurred.")
     });
 
+    this.socket.on("matched", (cards) => {
+      console.log("Matched!", cards)
+    });
+  }
+
+  createCard(props) {
+    return (<Socket.Consumer>
+      {socket => {
+        return <Card {...props} socket={socket}/>
+      }}
+    </Socket.Consumer>);
+  }
+
+  createHand(player) {
+    const hand = [];
+    for (let i = 0; i < EMOJIS.length; i++) {
+      if (player === PLAYER_1) {
+        hand.push(this.createCard({player, val: i}));
+      } else {
+        hand.push(this.createCard({player, val: i, disabled: true}))
+      }
+    }
+    return hand;
   }
 
   render(props, state) {
@@ -55,18 +96,14 @@ export default class Game extends Component {
         </div>
       </div>);
     }
-    const items = []
-    for (let i = 0; i < EMOJIS.length; i++) {
-      items.push(<Card val={i} socket={this.socket}/>)
-    }
     return (<div class="game">
       <h2>Player 1</h2>
       <div class="grid">
-        {items.map((index) => index)}
+          {this.state.cards.player1.map((index) => index)}
       </div>
       <hr class="break"/>
       <div class="grid">
-        {items.map((index) => index)}
+        {this.state.cards.player2.map((index) => index)}
       </div>
       <h2>Player 2</h2>
     </div>);

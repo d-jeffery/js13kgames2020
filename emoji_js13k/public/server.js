@@ -35,7 +35,7 @@ function removeUser(user) {
  */
 function generateCardGrid() {
 	return [...EMOJIS]
-		.sort(() => Math.random() - Math.random())
+		.sort(() => Math.random() - 0.5)
 		.map((emoji, idx) => ({key: idx, emoji}));
 }
 
@@ -51,6 +51,9 @@ class Game {
 	constructor(user1, user2) {
 		this.user1 = user1;
 		this.user2 = user2;
+		this.user1.player = PLAYER_1
+		this.user2.player = PLAYER_2
+		this.turn = Math.floor(Math.random() * 2);
 	}
 
 	/**
@@ -66,31 +69,54 @@ class Game {
 	 * @return {boolean}
 	 */
 	ended() {
-		return this.user1.guess !== GUESS_NO && this.user2.guess !== GUESS_NO;
+		// return this.user1.guess !== GUESS_NO && this.user2.guess !== GUESS_NO;
+	}
+
+	doTurn() {
+		this.turn = (this.turn + 1) % 2;
+	}
+
+	endRound() {
+		this.user1.setGuessed(null);
+		this.user2.setGuessed(null);
+		this.user1.socket.emit("newRound");
+		this.user2.socket.emit("newRound");
 	}
 
 	/**
 	 * Final score
 	 */
 	score() {
-		if (
-			this.user1.guess === GUESS_ROCK && this.user2.guess === GUESS_SCISSORS ||
-			this.user1.guess === GUESS_PAPER && this.user2.guess === GUESS_ROCK ||
-			this.user1.guess === GUESS_SCISSORS && this.user2.guess === GUESS_PAPER
-		) {
-			this.user1.win();
-			this.user2.lose();
-		} else if (
-			this.user2.guess === GUESS_ROCK && this.user1.guess === GUESS_SCISSORS ||
-			this.user2.guess === GUESS_PAPER && this.user1.guess === GUESS_ROCK ||
-			this.user2.guess === GUESS_SCISSORS && this.user1.guess === GUESS_PAPER
-		) {
-			this.user2.win();
-			this.user1.lose();
-		} else {
-			this.user1.draw();
-			this.user2.draw();
+		console.log(this.user1.hand[this.user1.guessed], this.user2.hand[this.user2.guessed])
+		if (this.user1.hand[this.user1.guessed] === this.user2.hand[this.user2.guessed]) {
+			if (this.turn === PLAYER_1) {
+				this.user1.matched();
+				this.turn = PLAYER_1;
+			} else {
+				this.user2.matched();
+				this.turn = PLAYER_2;
+			}
 		}
+
+
+		// if (
+		// 	this.user1.guess === GUESS_ROCK && this.user2.guess === GUESS_SCISSORS ||
+		// 	this.user1.guess === GUESS_PAPER && this.user2.guess === GUESS_ROCK ||
+		// 	this.user1.guess === GUESS_SCISSORS && this.user2.guess === GUESS_PAPER
+		// ) {
+		// 	this.user1.win();
+		// 	this.user2.lose();
+		// } else if (
+		// 	this.user2.guess === GUESS_ROCK && this.user1.guess === GUESS_SCISSORS ||
+		// 	this.user2.guess === GUESS_PAPER && this.user1.guess === GUESS_ROCK ||
+		// 	this.user2.guess === GUESS_SCISSORS && this.user1.guess === GUESS_PAPER
+		// ) {
+		// 	this.user2.win();
+		// 	this.user1.lose();
+		// } else {
+		// 	this.user1.draw();
+		// 	this.user2.draw();
+		// }
 	}
 
 }
@@ -107,24 +133,16 @@ class User {
 		this.socket = socket;
 		this.game = null;
 		this.opponent = null;
-		this.guess = GUESS_NO;
 		this.hand = [];
+		this.guessed = null;
 	}
 
 	/**
-	 * Set guess value
-	 * @param {number} guess
+	 * Set guessed value
+	 * @param {number} guessed
 	 */
-	setGuess(guess) {
-		if (
-			!this.opponent ||
-			guess <= GUESS_NO ||
-			guess > GUESS_SCISSORS
-		) {
-			return false;
-		}
-		this.guess = guess;
-		return true;
+	setGuessed(guessed) {
+		this.guessed = guessed;
 	}
 
 	/**
@@ -135,9 +153,18 @@ class User {
 	start(game, opponent) {
 		this.game = game;
 		this.opponent = opponent;
-		this.guess = GUESS_NO;
 		this.socket.emit("start");
 		this.hand = generateCardGrid();
+	}
+
+	wait() {
+		console.log("Player " + this.player + " is waiting.")
+		this.socket.emit("wait");
+	}
+
+	turn() {
+		console.log("Player " + this.player + " is turn.")
+		this.socket.emit("turn");
 	}
 
 	/**
@@ -146,8 +173,13 @@ class User {
 	end() {
 		this.game = null;
 		this.opponent = null;
-		this.guess = GUESS_NO;
 		this.socket.emit("end");
+	}
+
+	matched() {
+		console.log("matched")
+		this.socket.emit("matched", ({guessed: this.guessed, match: this.opponent.guessed}));
+		this.guessed = null;
 	}
 
 	/**
@@ -170,8 +202,6 @@ class User {
 	draw() {
 		this.socket.emit("draw", this.opponent.guess);
 	}
-
-
 }
 
 
@@ -186,6 +216,16 @@ module.exports = {
 		users.push(user);
 		findOpponent(user);
 
+		if (user.opponent) {
+			if (user.game.turn === user.player) {
+				user.opponent.wait();
+				user.turn();
+			} else {
+				user.opponent.turn();
+				user.wait();
+			}
+		}
+
 		socket.on("disconnect", () => {
 			console.log("Disconnected: " + socket.id);
 			removeUser(user);
@@ -195,20 +235,33 @@ module.exports = {
 			}
 		});
 
-		socket.on("flip", (guess, callback) => {
-			callback(user.hand[guess.guess]);
-		});
+		socket.on("flip", (props, callback) => {
+			if (user.game.turn === user.player) {
+				// Set guess
+				user.setGuessed(props.guess);
+				// Do turn
+				user.wait();
+				user.opponent.turn();
+				user.game.doTurn();
 
-		socket.on("guess", (guess) => {
-			console.log("Guess: " + socket.id);
-			if (user.setGuess(guess) && user.game.ended()) {
-				user.game.score();
-				user.game.start();
-				storage.get('games', 0).then(games => {
-					storage.set('games', games + 1);
-				});
+				callback(user.hand[props.guess], user.player);
+			}
+
+			if (user.guessed !== null && user.opponent.guessed !== null ) {
+				user.game.endRound();
 			}
 		});
+
+		// socket.on("guess", (guess) => {
+		// 	console.log("Guess: " + socket.id);
+		// 	if (user.setGuess(guess) && user.game.ended()) {
+		// 		user.game.score();
+		// 		user.game.start();
+		// 		storage.get('games', 0).then(games => {
+		// 			storage.set('games', games + 1);
+		// 		});
+		// 	}
+		// });
 
 		console.log("Connected: " + socket.id);
 	},

@@ -12,7 +12,8 @@ export default class Game extends Component {
   constructor() {
     super();
     this.state = {
-      score: {player1: 0, player2: 0},
+      player1: 0,
+      player2: 0,
       started: false,
       waiting: true,
       opponentGuess: {card: null, emoji: null},
@@ -37,6 +38,8 @@ export default class Game extends Component {
       console.log('Start game');
       this.player = props.playerNo;
       this.setState({started: true});
+      this.setState({player1: 0})
+      this.setState({player2: 0})
     });
 
     this.socket.on('newRound', (props) => {
@@ -60,8 +63,16 @@ export default class Game extends Component {
       console.error('An error with the server occurred.');
     });
 
-    this.socket.on('matched', (cards) => {
-      console.log('Matched!', cards);
+    this.socket.on('matched', (props) => {
+      console.log('Matched!', props);
+      const player1 = this.state.player1;
+      const player2 = this.state.player2;
+
+      if (props.player === PLAYER_1) {
+        this.setState({ player1: player1 + 1 })
+      } else {
+        this.setState({ player2: player2 + 1 });
+      }
     });
   }
 
@@ -85,6 +96,8 @@ export default class Game extends Component {
   render(props, state) {
     const player = this.player;
     const opponent = (this.player === PLAYER_1) ? PLAYER_2 : PLAYER_1;
+    const player1Score = (player === PLAYER_1) ? this.state.player1 : this.state.player2;
+    const player2Score = (opponent === PLAYER_2) ? this.state.player2 : this.state.player1;
 
     if (!this.state.started) {
       return (<div className="game">
@@ -107,6 +120,8 @@ export default class Game extends Component {
         }
       </div>
       <h2>Opponent</h2>
+      <hr class="break"/>
+      <h3>Score: {player1Score} - {player2Score} </h3>
     </div>);
   }
 }

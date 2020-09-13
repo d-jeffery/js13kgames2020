@@ -89,13 +89,30 @@ class Game {
 	score() {
 		if (this.user1.hand[this.user1.guessed].emoji === this.user2.hand[this.user2.guessed].emoji) {
 			if (this.turn === PLAYER_1) {
-				this.user1.matched({score: true, guessed: this.user1.guessed});
-				this.user2.matched({score: false, guessed: this.user2.guessed});
+				this.user1.matched({
+					score: this.user1.player,
+					user1: this.user1.guessed,
+					user2: this.user2.guessed
+				});
+				this.user2.matched({
+					score: this.user1.player,
+					user1: this.user1.guessed,
+					user2: this.user2.guessed
+				});
 				this.turn = PLAYER_2;
 			} else {
-				this.user2.matched({score: false, guessed: this.user2.guessed});
-				this.user1.matched({score: true, guessed: this.user1.guessed});
-				this.turn = PLAYER_1;
+				this.user1.matched({
+					score: this.user2.player,
+					user1: this.user1.guessed,
+					user2: this.user2.guessed
+				});
+				this.user2.matched({
+					score: this.user2.player,
+					user1: this.user1.guessed,
+					user2: this.user2.guessed
+				});
+				this.turn =
+					this.turn = PLAYER_1;
 			}
 		}
 	}

@@ -19,14 +19,26 @@ export default class Card extends Component {
 
   bind() {
     this.socket.on('newRound', () => {
-      setTimeout(() => {
-        this.setState({flipStatus: DEFAULT, hiddenValue: null});
-      }, 1000);
+      if (this.state.flipStatus !== MATCHED) {
+        setTimeout(() => {
+          this.setState({flipStatus: DEFAULT, hiddenValue: null});
+        }, 1000);
+      }
     });
 
     this.socket.on('revealCard', (props) => {
-      if (this.cardNumber === props.val && this.player === props.player) {
-        this.setState({flipStatus: FLIPPED, hiddenValue: props.emoji});
+      if (this.state.flipStatus !== MATCHED) {
+          if (this.cardNumber === props.val && this.player === props.player) {
+          this.setState({flipStatus: FLIPPED, hiddenValue: props.emoji});
+        }
+      }
+    });
+
+    this.socket.on('matchCard', (props) => {
+      if (this.player === PLAYER_1 && this.cardNumber === props.user1) {
+        this.setState({flipStatus: MATCHED});
+      } else if (this.player === PLAYER_2 && this.cardNumber === props.user2) {
+        this.setState({flipStatus: MATCHED});
       }
     });
   }

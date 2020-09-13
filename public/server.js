@@ -178,6 +178,9 @@ class User {
 	}
 
 	matched(props) {
+		console.log(props)
+		this.socket.emit("matchCard", {...props})
+		this.opponent.socket.emit("matchCard", {...props})
 		this.socket.emit("matched", {...props});
 	}
 

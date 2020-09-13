@@ -96,8 +96,6 @@ export default class Game extends Component {
   render(props, state) {
     const player = this.player;
     const opponent = (this.player === PLAYER_1) ? PLAYER_2 : PLAYER_1;
-    const player1Score = (player === PLAYER_1) ? this.state.player1 : this.state.player2;
-    const player2Score = (opponent === PLAYER_2) ? this.state.player2 : this.state.player1;
 
     if (!this.state.started) {
       return (<div className="game">
@@ -120,8 +118,6 @@ export default class Game extends Component {
         }
       </div>
       <h2>Opponent</h2>
-      <hr class="break"/>
-      <h3>Score: {player1Score} - {player2Score} </h3>
     </div>);
   }
 }

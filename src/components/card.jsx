@@ -18,13 +18,13 @@ export default class Card extends Component {
   }
 
   bind() {
-    this.socket.on("newRound", () => {
+    this.socket.on('newRound', () => {
       setTimeout(() => {
-        this.setState({flipStatus: DEFAULT, hiddenValue: null})
+        this.setState({flipStatus: DEFAULT, hiddenValue: null});
       }, 1000);
     });
 
-    this.socket.on("revealCard", (props) => {
+    this.socket.on('revealCard', (props) => {
       if (this.cardNumber === props.val && this.player === props.player) {
         this.setState({flipStatus: FLIPPED, hiddenValue: props.emoji});
       }
@@ -32,7 +32,7 @@ export default class Card extends Component {
   }
 
   guess(val) {
-    this.socket.emit("flip", {player: this.player, "guess": val});
+    this.socket.emit('flip', {'player': this.player, 'guess': val});
   };
 
   render(props, state) {

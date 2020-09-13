@@ -68,12 +68,12 @@ export default class Game extends Component {
     });
 
     this.socket.on("lose", (props) => {
-      console.log("lose", props);
+      console.log("Lose", props);
       this.setState({score: props.score, outcome: LOSE});
     });
 
     this.socket.on("draw", (props) => {
-      console.log("draw", props);
+      console.log("Draw", props);
       this.setState({score: props.score, outcome: DRAW});
     });
   }
@@ -113,12 +113,12 @@ export default class Game extends Component {
             <h1>YOU WIN</h1>
             <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
           </div>
-      } else if (this.state.outcome === WIN) {
+      } else if (this.state.outcome === LOSE) {
         return <div class="results">
             <h1>YOU LOSE</h1>
             <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
           </div>
-      } else if (this.state.outcome === WIN) {
+      } else if (this.state.outcome === DRAW) {
         return <div class="results">
             <h1>DRAW</h1>
             <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>

@@ -102,6 +102,7 @@ export default class Game extends Component {
     if (!this.state.started) {
       return (<div className="game">
         <div class="head">
+          <h1>Emoji Memory</h1>
           <h2>Waiting for opponent...</h2>
         </div>
       </div>);
@@ -110,19 +111,25 @@ export default class Game extends Component {
     if (this.state.started) {
       if (this.state.outcome === WIN) {
         return <div class="results">
+          <div class="panel">
             <h1>YOU WIN</h1>
             <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
           </div>
+        </div>
       } else if (this.state.outcome === LOSE) {
         return <div class="results">
+          <div class="panel">
             <h1>YOU LOSE</h1>
             <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
           </div>
+        </div>
       } else if (this.state.outcome === DRAW) {
         return <div class="results">
+          <div class="panel">
             <h1>DRAW</h1>
             <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
           </div>
+        </div>
       }
     }
 

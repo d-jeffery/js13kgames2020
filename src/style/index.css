@@ -56,13 +56,11 @@ table {
     line-height: 1.5;
 }
 
-
 .head {
     max-width: 300px;
     padding-bottom: 30px;
     font-size: 1.2rem;
 }
-
 
 .button {
     width: 200px;
@@ -94,6 +92,45 @@ table {
     align-items: center;
     padding-top: 15px;
     max-height: 568px;
+    font-family: "Courier New", serif;
+}
+
+.game .head {
+    padding: 20px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.game .head h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.results {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.results .panel {
+    border: 4px dotted #000000;
+    padding: 20px 20px;
+    font-family: "Courier New", serif;
+}
+
+.results .panel h1 {
+    font-size: 3rem
 }
 
 .grid {

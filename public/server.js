@@ -74,6 +74,8 @@ class Game {
 
 	doTurn() {
 		this.turn = (this.turn + 1) % 2;
+		this.user1.socket.emit("turn", {turn: this.turn});
+		this.user2.socket.emit("turn", {turn: this.turn});
 	}
 
 	endRound() {
@@ -88,31 +90,42 @@ class Game {
 	 */
 	score() {
 		if (this.user1.hand[this.user1.guessed].emoji === this.user2.hand[this.user2.guessed].emoji) {
-			if (this.turn === PLAYER_1) {
-				this.user1.matched({
+			this.doTurn();
+			if (this.turn === this.user1.player) {
+				const result = {
 					score: this.user1.player,
 					user1: this.user1.guessed,
 					user2: this.user2.guessed
-				});
-				this.user2.matched({
-					score: this.user1.player,
-					user1: this.user1.guessed,
-					user2: this.user2.guessed
-				});
-				this.turn = PLAYER_2;
-			} else {
-				this.user1.matched({
+				}
+				this.user1.score++
+				console.log(this.user1.player, this.user1.score)
+
+				this.user1.matched({...result});
+				this.user2.matched({...result});
+			} else if (this.turn === this.user2.player) {
+				const result = {
 					score: this.user2.player,
 					user1: this.user1.guessed,
 					user2: this.user2.guessed
-				});
-				this.user2.matched({
-					score: this.user2.player,
-					user1: this.user1.guessed,
-					user2: this.user2.guessed
-				});
-				this.turn =
-					this.turn = PLAYER_1;
+				}
+				this.user2.score++
+				console.log(this.user2.player, this.user2.score)
+
+				this.user1.matched({...result});
+				this.user2.matched({...result});
+			}
+
+			if (this.user1.score + this.user2.score >= EMOJIS.length) {
+				if (this.user1.score > this.user2.score) {
+					this.user1.win()
+					this.user2.lose();
+				} else if (this.user1.score < this.user2.score) {
+					this.user1.lose()
+					this.user2.win();
+				} else {
+					this.user1.draw();
+					this.user2.draw();
+				}
 			}
 		}
 	}
@@ -133,6 +146,7 @@ class User {
 		this.opponent = null;
 		this.hand = [];
 		this.guessed = null;
+		this.score = 0;
 	}
 
 	/**
@@ -151,16 +165,8 @@ class User {
 	start(game, opponent) {
 		this.game = game;
 		this.opponent = opponent;
-		this.socket.emit("start", {playerNo: this.player});
+		this.socket.emit("start", {playerNo: this.player, turn: this.game.turn});
 		this.hand = generateCardGrid();
-	}
-
-	wait() {
-		this.socket.emit("wait",);
-	}
-
-	turn() {
-		this.socket.emit("turn");
 	}
 
 	revealCard(props) {
@@ -178,31 +184,29 @@ class User {
 	}
 
 	matched(props) {
-		console.log(props)
 		this.socket.emit("matchCard", {...props})
 		this.opponent.socket.emit("matchCard", {...props})
-		this.socket.emit("matched", {...props});
 	}
 
 	/**
 	 * Trigger win event
 	 */
 	win() {
-		this.socket.emit("win", this.opponent.guess);
+		this.socket.emit("win", {player: this.player, score: this.score});
 	}
 
 	/**
 	 * Trigger lose event
 	 */
 	lose() {
-		this.socket.emit("lose", this.opponent.guess);
+		this.socket.emit("lose", {player: this.player, score: this.score});
 	}
 
 	/**
 	 * Trigger draw event
 	 */
 	draw() {
-		this.socket.emit("draw", this.opponent.guess);
+		this.socket.emit("draw", {player: this.player, score: this.score});
 	}
 }
 
@@ -217,16 +221,6 @@ module.exports = {
 		const user = new User(socket);
 		users.push(user);
 		findOpponent(user);
-
-		if (user.opponent) {
-			if (user.game.turn === user.player) {
-				user.opponent.wait();
-				user.turn();
-			} else {
-				user.opponent.turn();
-				user.wait();
-			}
-		}
 
 		socket.on("disconnect", () => {
 			console.log("Disconnected: " + socket.id);
@@ -246,40 +240,17 @@ module.exports = {
 					val: props.guess,
 					emoji: user.hand[props.guess].emoji,
 					player: user.player});
-				// Do turn
-				user.wait();
-				user.opponent.turn();
+
 				user.game.doTurn();
-			}
 
-			if (user.guessed !== null && user.opponent.guessed !== null ) {
-				user.game.score();
-
-				if (user.game.turn === user.player) {
-					user.game.turn = user.opponent.player;
-					user.wait();
-					user.opponent.turn();
-				} else {
-					user.game.turn = user.player;
-					user.turn();
-					user.opponent.wait();
+				if (user.guessed !== null && user.opponent.guessed !== null ) {
+					user.game.score();
+					user.game.doTurn();
+					user.game.endRound();
 				}
-
-				user.game.endRound();
 			}
+
 		});
-
-		// socket.on("guess", (guess) => {
-		// 	console.log("Guess: " + socket.id);
-		// 	if (user.setGuess(guess) && user.game.ended()) {
-		// 		user.game.score();
-		// 		user.game.start();
-		// 		storage.get('games', 0).then(games => {
-		// 			storage.set('games', games + 1);
-		// 		});
-		// 	}
-		// });
-
 		console.log("Connected: " + socket.id);
 	},
 

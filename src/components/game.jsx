@@ -15,8 +15,9 @@ export default class Game extends Component {
       player1: 0,
       player2: 0,
       started: false,
-      waiting: true,
-      opponentGuess: {card: null, emoji: null},
+      // waiting: true,
+      turn: PLAYER_1,
+      // opponentGuess: {card: null, emoji: null},
     };
     this.player = PLAYER_1;
     this.socket = useContext(Socket);
@@ -35,9 +36,9 @@ export default class Game extends Component {
     });
 
     this.socket.on('start', (props) => {
-      console.log('Start game');
+      console.log('Start game', props.playerNo, props.turn);
       this.player = props.playerNo;
-      this.setState({started: true});
+      this.setState({turn: props.turn, started: true});
       this.setState({player1: 0})
       this.setState({player2: 0})
     });
@@ -46,12 +47,9 @@ export default class Game extends Component {
       console.log('Round starting');
     });
 
-    this.socket.on('turn', (val) => {
-      this.setState({waiting: false});
-    });
-
-    this.socket.on('wait', (val) => {
-      this.setState({waiting: true});
+    this.socket.on('turn', (props) => {
+      console.log('turn', props)
+      this.setState({turn: props.turn});
     });
 
     this.socket.on('end', () => {
@@ -63,16 +61,16 @@ export default class Game extends Component {
       console.error('An error with the server occurred.');
     });
 
-    this.socket.on('matched', (props) => {
-      console.log('Matched!', props);
-      const player1 = this.state.player1;
-      const player2 = this.state.player2;
+    this.socket.on("win", (props) => {
+      console.log("Win", props);
+    });
 
-      if (props.player === PLAYER_1) {
-        this.setState({ player1: player1 + 1 })
-      } else {
-        this.setState({ player2: player2 + 1 });
-      }
+    this.socket.on("lose", (props) => {
+      console.log("lose", props);
+    });
+
+    this.socket.on("draw", (props) => {
+      console.log("draw", props);
     });
   }
 
@@ -105,7 +103,7 @@ export default class Game extends Component {
       </div>);
     }
     return (<div class="game">
-      <h2>Player: {this.state.waiting ? 'Opponent\'s turn' : 'Your Turn'} </h2>
+      <h2>Player: {this.state.turn !== this.player ? 'Opponent\'s turn' : 'Your Turn'} </h2>
       <div class="grid">
         {
           this.createHand(player).map((index) => index)

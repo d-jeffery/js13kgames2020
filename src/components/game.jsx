@@ -39,17 +39,15 @@ export default class Game extends Component {
       this.setState({started: true});
     });
 
-    this.socket.on('newRound', () => {
+    this.socket.on('newRound', (props) => {
       console.log('Round starting');
     });
 
     this.socket.on('turn', (val) => {
-      console.log('Turning', val);
       this.setState({waiting: false});
     });
 
     this.socket.on('wait', (val) => {
-      console.log('Waiting', val);
       this.setState({waiting: true});
     });
 

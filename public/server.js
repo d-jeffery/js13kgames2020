@@ -87,36 +87,17 @@ class Game {
 	 * Final score
 	 */
 	score() {
-		console.log(this.user1.hand[this.user1.guessed], this.user2.hand[this.user2.guessed])
 		if (this.user1.hand[this.user1.guessed].emoji === this.user2.hand[this.user2.guessed].emoji) {
 			if (this.turn === PLAYER_1) {
-				this.user1.matched();
-				this.turn = PLAYER_1;
-			} else {
-				this.user2.matched();
+				this.user1.matched({score: true, guessed: this.user1.guessed});
+				this.user2.matched({score: false, guessed: this.user2.guessed});
 				this.turn = PLAYER_2;
+			} else {
+				this.user2.matched({score: false, guessed: this.user2.guessed});
+				this.user1.matched({score: true, guessed: this.user1.guessed});
+				this.turn = PLAYER_1;
 			}
 		}
-
-
-		// if (
-		// 	this.user1.guess === GUESS_ROCK && this.user2.guess === GUESS_SCISSORS ||
-		// 	this.user1.guess === GUESS_PAPER && this.user2.guess === GUESS_ROCK ||
-		// 	this.user1.guess === GUESS_SCISSORS && this.user2.guess === GUESS_PAPER
-		// ) {
-		// 	this.user1.win();
-		// 	this.user2.lose();
-		// } else if (
-		// 	this.user2.guess === GUESS_ROCK && this.user1.guess === GUESS_SCISSORS ||
-		// 	this.user2.guess === GUESS_PAPER && this.user1.guess === GUESS_ROCK ||
-		// 	this.user2.guess === GUESS_SCISSORS && this.user1.guess === GUESS_PAPER
-		// ) {
-		// 	this.user2.win();
-		// 	this.user1.lose();
-		// } else {
-		// 	this.user1.draw();
-		// 	this.user2.draw();
-		// }
 	}
 
 }
@@ -158,17 +139,14 @@ class User {
 	}
 
 	wait() {
-		console.log("Player " + this.player + " is waiting.")
 		this.socket.emit("wait",);
 	}
 
 	turn() {
-		console.log("Player " + this.player + " is turn.")
 		this.socket.emit("turn");
 	}
 
 	revealCard(props) {
-		console.log(props)
 		this.socket.emit("revealCard", {...props})
 		this.opponent.socket.emit("revealCard", {...props})
 	}
@@ -182,9 +160,8 @@ class User {
 		this.socket.emit("end");
 	}
 
-	matched() {
-		console.log("matched")
-		this.socket.emit("matched", ({guessed: this.guessed, match: this.opponent.guessed}));
+	matched(props) {
+		this.socket.emit("matched", {...props});
 	}
 
 	/**
@@ -241,7 +218,6 @@ module.exports = {
 		});
 
 		socket.on("flip", (props) => {
-			console.log(props);
 			if (user.game.turn === user.player &&
 				props.player === user.player) {
 				// Set guess
@@ -254,12 +230,21 @@ module.exports = {
 				user.wait();
 				user.opponent.turn();
 				user.game.doTurn();
-
-				//callback(user.hand[props.guess], user.player);
 			}
 
 			if (user.guessed !== null && user.opponent.guessed !== null ) {
 				user.game.score();
+
+				if (user.game.turn === user.player) {
+					user.game.turn = user.opponent.player;
+					user.wait();
+					user.opponent.turn();
+				} else {
+					user.game.turn = user.player;
+					user.turn();
+					user.opponent.wait();
+				}
+
 				user.game.endRound();
 			}
 		});

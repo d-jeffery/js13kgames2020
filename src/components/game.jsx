@@ -8,16 +8,19 @@ import Card from './card.jsx';
 
 const Socket = createContext(io({upgrade: false, transports: ['websocket']}));
 
+const IN_PLAY = 0;
+const WIN = 1;
+const LOSE = 2;
+const DRAW = 3;
+
 export default class Game extends Component {
   constructor() {
     super();
     this.state = {
-      player1: 0,
-      player2: 0,
+      score: 0,
       started: false,
-      // waiting: true,
       turn: PLAYER_1,
-      // opponentGuess: {card: null, emoji: null},
+      outcome: IN_PLAY
     };
     this.player = PLAYER_1;
     this.socket = useContext(Socket);
@@ -38,9 +41,7 @@ export default class Game extends Component {
     this.socket.on('start', (props) => {
       console.log('Start game', props.playerNo, props.turn);
       this.player = props.playerNo;
-      this.setState({turn: props.turn, started: true});
-      this.setState({player1: 0})
-      this.setState({player2: 0})
+      this.setState({turn: props.turn, started: true, score: 0, outcome: IN_PLAY});
     });
 
     this.socket.on('newRound', (props) => {
@@ -63,14 +64,17 @@ export default class Game extends Component {
 
     this.socket.on("win", (props) => {
       console.log("Win", props);
+      this.setState({score: props.score, outcome: WIN});
     });
 
     this.socket.on("lose", (props) => {
       console.log("lose", props);
+      this.setState({score: props.score, outcome: LOSE});
     });
 
     this.socket.on("draw", (props) => {
       console.log("draw", props);
+      this.setState({score: props.score, outcome: DRAW});
     });
   }
 
@@ -102,6 +106,26 @@ export default class Game extends Component {
         </div>
       </div>);
     }
+
+    if (this.state.started) {
+      if (this.state.outcome === WIN) {
+        return <div class="results">
+            <h1>YOU WIN</h1>
+            <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
+          </div>
+      } else if (this.state.outcome === WIN) {
+        return <div class="results">
+            <h1>YOU LOSE</h1>
+            <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
+          </div>
+      } else if (this.state.outcome === WIN) {
+        return <div class="results">
+            <h1>DRAW</h1>
+            <h2>Final score: {this.state.score} / {EMOJIS.length}</h2>
+          </div>
+      }
+    }
+
     return (<div class="game">
       <h2>Player: {this.state.turn !== this.player ? 'Opponent\'s turn' : 'Your Turn'} </h2>
       <div class="grid">

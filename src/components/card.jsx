@@ -25,17 +25,10 @@ export default class Card extends Component {
     });
 
     this.socket.on("revealCard", (props) => {
-      console.log(props)
       if (this.cardNumber === props.val && this.player === props.player) {
         this.setState({flipStatus: FLIPPED, hiddenValue: props.emoji});
       }
     });
-
-    //
-    // this.socket.on("turn", (cardFace) => {
-    //   console.log(cardFace)
-    //   this.setState({flipStatus: DEFAULT, hiddenValue: cardFace.emoji})
-    // });
   }
 
   guess(val) {

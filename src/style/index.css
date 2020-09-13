@@ -109,6 +109,11 @@ table {
     margin-bottom: 20px;
 }
 
+.game h2 {
+    font-size: 1.5rem;
+    margin: 10px 0;
+}
+
 .results {
     position: absolute;
     top: 0;

@@ -153,18 +153,24 @@ class User {
 	start(game, opponent) {
 		this.game = game;
 		this.opponent = opponent;
-		this.socket.emit("start");
+		this.socket.emit("start", {playerNo: this.player});
 		this.hand = generateCardGrid();
 	}
 
 	wait() {
 		console.log("Player " + this.player + " is waiting.")
-		this.socket.emit("wait");
+		this.socket.emit("wait",);
 	}
 
 	turn() {
 		console.log("Player " + this.player + " is turn.")
 		this.socket.emit("turn");
+	}
+
+	revealCard(props) {
+		console.log(props)
+		this.socket.emit("revealCard", {...props})
+		this.opponent.socket.emit("revealCard", {...props})
 	}
 
 	/**
@@ -234,16 +240,22 @@ module.exports = {
 			}
 		});
 
-		socket.on("flip", (props, callback) => {
-			if (user.game.turn === user.player) {
+		socket.on("flip", (props) => {
+			console.log(props);
+			if (user.game.turn === user.player &&
+				props.player === user.player) {
 				// Set guess
 				user.setGuessed(props.guess);
+				user.revealCard({
+					val: props.guess,
+					emoji: user.hand[props.guess].emoji,
+					player: user.player});
 				// Do turn
 				user.wait();
 				user.opponent.turn();
 				user.game.doTurn();
 
-				callback(user.hand[props.guess], user.player);
+				//callback(user.hand[props.guess], user.player);
 			}
 
 			if (user.guessed !== null && user.opponent.guessed !== null ) {

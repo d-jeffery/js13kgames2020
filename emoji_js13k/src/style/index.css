@@ -114,6 +114,6 @@
     border: 3px dashed red;
 }
 
-.card[data-player="1"] .front {
-    cursor: not-allowed;
-}
+/*.card[data-player="1"] .front {*/
+/*    cursor: not-allowed;*/
+/*}*/

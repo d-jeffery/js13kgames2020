@@ -12,13 +12,12 @@ export default class Game extends Component {
   constructor() {
     super();
     this.state = {
-      cards: {player1: [], player2: []},
       score: {player1: 0, player2: 0},
-      flippedCards: {first: {}, second: {}},
       started: false,
-      waiting: true
+      waiting: true,
+      opponentGuess: {card: null, emoji: null}
     };
-
+    this.player = PLAYER_1;
     this.socket = useContext(Socket);
 
     console.log("Binding");
@@ -34,8 +33,9 @@ export default class Game extends Component {
       console.log("Disconnected")
     });
 
-    this.socket.on("start", (numOfCards) => {
+    this.socket.on("start", (props) => {
       console.log("Start game");
+      this.player = props.playerNo;
       this.setState({started: true});
     });
 
@@ -43,13 +43,13 @@ export default class Game extends Component {
       console.log("Round starting");
     });
 
-    this.socket.on("turn", () => {
-      console.log("Turning");
+    this.socket.on("turn", (val) => {
+      console.log("Turning", val);
       this.setState({waiting: false})
     });
 
-    this.socket.on("wait", () => {
-      console.log("Waiting");
+    this.socket.on("wait", (val) => {
+      console.log("Waiting", val);
       this.setState({waiting: true})
     });
 
@@ -77,21 +77,17 @@ export default class Game extends Component {
 
   createHand(player) {
     const hand = [];
+
     for (let i = 0; i < EMOJIS.length; i++) {
-      if (player === PLAYER_1) {
-        if (this.state.waiting) {
-          hand.push(this.createCard({player, val: i, disabled: true}));
-        } else {
-          hand.push(this.createCard({player, val: i}));
-        }
-      } else {
-        hand.push(this.createCard({player, val: i, disabled: true}))
-      }
+      hand.push(this.createCard({player, val: i}));
     }
     return hand;
   }
 
   render(props, state) {
+    const player = this.player;
+    const opponent = (this.player === PLAYER_1) ? PLAYER_2 : PLAYER_1;
+
     if (!this.state.started) {
       return (<div className="game">
         <div class="head">
@@ -103,13 +99,13 @@ export default class Game extends Component {
       <h2>Player: {this.state.waiting ? "Opponent's turn" : "Your Turn"} </h2>
       <div class="grid">
         {
-          this.createHand(PLAYER_1).map((index) => index)
+          this.createHand(player).map((index) => index)
         }
       </div>
       <hr class="break"/>
       <div class="grid">
         {
-          this.createHand(PLAYER_2).map((index) => index)
+          this.createHand(opponent).map((index) => index)
         }
       </div>
       <h2>Opponent</h2>
